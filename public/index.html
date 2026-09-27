@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BlitzDraft</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main id="app">
+    <section id="lobby" class="panel">
+      <h1>⚡ BlitzDraft</h1>
+      <p class="muted">Yu-Gi-Oh! Echtzeit-Draft</p>
+      <div class="tabs">
+        <button class="tab active" data-tab="create">Raum erstellen</button>
+        <button class="tab" data-tab="join">Raum beitreten</button>
+      </div>
+
+      <form id="createForm" class="form">
+        <label>Name <input id="createName" required maxlength="24" placeholder="Dein Name"></label>
+        <label>Raumcode <input id="roomCode" maxlength="8" placeholder="z.B. GOAT42"></label>
+        <div class="grid2">
+          <label>Zeilen <input id="rows" type="number" min="1" max="6" value="2"></label>
+          <label>Spalten <input id="cols" type="number" min="1" max="10" value="4"></label>
+          <label>Picks pro Runde <input id="picks" type="number" min="1" max="10" value="1"></label>
+          <label>Zielkarten <input id="target" type="number" min="1" max="60" value="40"></label>
+        </div>
+        <label>Cube
+          <select id="pool">
+            <option value="goat">Goat Format (API-Pool)</option>
+            <option value="bp1">Battle Pack 1 – Epic Dawn</option>
+            <option value="bp2">Battle Pack 2 – War of the Giants</option>
+            <option value="bp3">Battle Pack 3 – Monster League</option>
+            <option value="battlecity">Battle City Style</option>
+          </select>
+        </label>
+        <div id="configHint" class="hint"></div>
+        <button class="primary">Raum erstellen</button>
+      </form>
+
+      <form id="joinForm" class="form hidden">
+        <label>Name <input id="joinName" required maxlength="24" placeholder="Dein Name"></label>
+        <label>Raumcode <input id="joinCode" required maxlength="8" placeholder="GOAT42"></label>
+        <button class="primary">Beitreten</button>
+      </form>
+      <div id="lobbyError" class="error"></div>
+    </section>
+
+    <section id="room" class="hidden">
+      <header class="topbar">
+        <div><strong>BlitzDraft</strong> <span id="roomLabel"></span></div>
+        <div id="roundLabel"></div>
+      </header>
+      <div class="players" id="players"></div>
+      <div id="roomError" class="error"></div>
+      <section class="draftLayout">
+        <div class="draftMain">
+          <div id="countdown" class="countdown hidden">3</div>
+          <div id="grid" class="cardGrid"></div>
+          <div id="finished" class="finished hidden">Draft beendet 🎉</div>
+        </div>
+        <aside class="side">
+          <div class="chartCard">
+            <h3>Mein Deck</h3>
+            <div class="donut" id="donut"><span id="donutTotal">0</span></div>
+            <div class="legend">
+              <span><i class="monster"></i>Monster <b id="mCount">0</b></span>
+              <span><i class="spell"></i>Zauber <b id="sCount">0</b></span>
+              <span><i class="trap"></i>Fallen <b id="tCount">0</b></span>
+            </div>
+          </div>
+          <div class="deck" id="deck"></div>
+          <button id="startBtn" class="primary hidden">Draft starten</button>
+        </aside>
+      </section>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
