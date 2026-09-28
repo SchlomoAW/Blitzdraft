@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BlitzDraft</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main id="app">
+    <section id="lobby" class="panel">
+      <h1>⚡ BlitzDraft</h1>
+      <p class="muted">Yu-Gi-Oh! Echtzeit-Draft</p>
+      <div class="tabs">
+        <button class="tab active" data-tab="create">Raum erstellen</button>
+        <button class="tab" data-tab="join">Raum beitreten</button>
+        <button class="tab" data-tab="cube">Cube erstellen</button>
+      </div>
+
+      <form id="createForm" class="form">
+        <label>Name <input id="createName" required maxlength="24" placeholder="Dein Name"></label>
+        <label>Raumcode <input id="roomCode" maxlength="8" placeholder="z.B. GOAT42"></label>
+        <div class="grid2">
+          <label>Spieler <input id="maxPlayers" type="number" min="2" max="8" value="4"></label>
+          <label>Zielkarten <input id="target" type="number" min="1" max="60" value="40"></label>
+          <label>Zeilen <input id="rows" type="number" min="1" max="6" value="2"></label>
+          <label>Spalten <input id="cols" type="number" min="1" max="10" value="4"></label>
+          <label>Picks pro Runde <input id="picks" type="number" min="1" max="10" value="1"></label>
+        </div>
+        <label class="checkRow"><input id="allowUndo" type="checkbox"> Pick kann bis zum Abschluss der Runde zurückgenommen werden</label>
+        <label>Cube
+          <select id="pool">
+            <option value="goat">Goat Format (API-Pool)</option>
+            <option value="bp1">Battle Pack 1 – Epic Dawn</option>
+            <option value="bp2">Battle Pack 2 – War of the Giants</option>
+            <option value="bp3">Battle Pack 3 – Monster League</option>
+            <option value="battlecity">Battle City Style</option>
+          </select>
+        </label>
+        <label id="customPoolWrap" class="hidden">Eigener Cube
+          <select id="customPool"></select>
+        </label>
+        <div id="configHint" class="hint"></div>
+        <button class="primary">Raum erstellen</button>
+      </form>
+
+      <form id="joinForm" class="form hidden">
+        <label>Name <input id="joinName" required maxlength="24" placeholder="Dein Name"></label>
+        <label>Raumcode <input id="joinCode" required maxlength="8" placeholder="GOAT42"></label>
+        <button class="primary">Beitreten</button>
+      </form>
+
+      <section id="cubeForm" class="cubeEditor hidden">
+        <h2>Cube erstellen</h2>
+        <p class="muted">Suche und filtere Karten wie in einem Yu-Gi-Oh!-Deck-Editor. Mehrere Exemplare sind möglich.</p>
+        <div class="cubeBuilderLayout">
+          <aside class="cubeFilters">
+            <h3>Suche & Filter</h3>
+            <input id="cubeSearch" placeholder="Kartenname suchen…">
+            <select id="filterCategory"><option value="">Kartentyp wählen</option><option value="Monster">Monster</option><option value="Spell">Zauber</option><option value="Trap">Falle</option></select>
+            <div id="monsterFilters" class="filterGroup">
+              <select id="filterMonsterType"><option value="">Monster-Art</option><option value="Normal">Normal</option><option value="Effect">Effekt</option><option value="Fusion">Fusion</option><option value="Synchro">Synchro</option><option value="XYZ">XYZ</option><option value="Link">Link</option></select>
+              <select id="filterAttribute"><option value="">Attribut</option><option>EARTH</option><option>WATER</option><option>FIRE</option><option>WIND</option><option>LIGHT</option><option>DARK</option><option>DIVINE</option></select>
+              <select id="filterRace"><option value="">Type/Rasse</option><option>Aqua</option><option>Beast</option><option>Beast-Warrior</option><option>Cyberse</option><option>Dinosaur</option><option>Dragon</option><option>Fairy</option><option>Fiend</option><option>Fish</option><option>Insect</option><option>Machine</option><option>Plant</option><option>Psychic</option><option>Pyro</option><option>Reptile</option><option>Rock</option><option>Sea Serpent</option><option>Spellcaster</option><option>Thunder</option><option>Warrior</option><option>Winged Beast</option><option>Wyrm</option><option>Zombie</option></select>
+              <select id="filterLevel"><option value="">Level / Rang</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select>
+            </div>
+            <div id="spellFilters" class="filterGroup hidden">
+              <select id="filterSpell"><option value="">Zauber-Art</option><option>Spell Card</option><option>Normal Spell Card</option><option>Equip Spell Card</option><option>Quick-Play Spell Card</option><option>Continuous Spell Card</option><option>Ritual Spell Card</option><option>Field Spell Card</option></select>
+            </div>
+            <div id="trapFilters" class="filterGroup hidden">
+              <select id="filterTrap"><option value="">Fallen-Art</option><option>Trap Card</option><option>Normal Trap Card</option><option>Counter Trap Card</option><option>Continuous Trap Card</option></select>
+            </div>
+            <label>Archetyp anzeigen<select id="archetypeSelect"><option value="">Archetyp wählen…</option></select></label>
+            <div class="cubeEditorActions"><button type="button" class="primary" id="cubeSearchBtn">Suchen</button><button type="button" id="clearFiltersBtn">Filter zurücksetzen</button></div>
+            <hr>
+            <h3>Pool hinzufügen</h3>
+            <label>Set<select id="setSelect"><option value="">Set wählen…</option></select></label>
+            <button type="button" id="addSetBtn">Komplettes Set hinzufügen</button>
+            <div id="bulkNotice" class="hint"></div>
+          </aside>
+          <section class="cubeSearchColumn">
+            <div class="columnTitle"><h3>Karten</h3><span>Größere Vorschau · Master-Duel-Rarität</span></div>
+            <div id="searchResults" class="searchResults cubeResults"></div><div id="searchPagination" class="pagination"></div>
+          </section>
+          <aside class="cubeBuilderPanel">
+          <div class="customHeader"><b>Aktueller Cube</b><span id="customTotal">0 Exemplare</span></div>
+          <input id="customCubeName" placeholder="Cube-Name">
+          <div id="customList" class="customList"></div>
+          <div class="customTools"><button type="button" id="saveCubeBtn">Speichern</button><button type="button" id="clearCubeBtn">Cube leeren</button><button type="button" id="exportCubeBtn">JSON exportieren</button><label class="importCubeBtn">JSON importieren<input id="importCubeInput" type="file" accept="application/json" hidden></label><label class="importCubeBtn">CSV importieren<input id="importCsvInput" type="file" accept=".csv,text/csv" hidden></label></div>
+          <div id="savedNotice" class="hint"></div><div id="savedCubes" class="savedCubes"></div>
+          </aside>
+        </div>
+      </section>
+      <div id="lobbyError" class="error"></div>
+    </section>
+
+    <section id="room" class="hidden">
+      <header class="topbar">
+        <div><strong>BlitzDraft</strong> <span id="roomLabel"></span></div>
+        <div><span id="capacityLabel"></span> · <span id="roundLabel"></span></div>
+      </header>
+      <div class="players" id="players"></div>
+      <div id="roomError" class="error"></div>
+      <section class="draftLayout">
+        <aside class="draftHoverPanel" id="draftHoverPanel"><div class="hoverEmpty">Fahre mit der Maus über eine Karte, um Effekt und Kartendaten hier anzuzeigen.</div></aside>
+        <div class="draftMain">
+          <div class="roundStatus" id="roundStatus"></div><div id="countdown" class="countdown hidden">3</div>
+          <div id="grid" class="cardGrid"></div>
+          <div id="finished" class="finished hidden">
+            <h2>Draft beendet 🎉</h2><p id="finalCount">0 Karten</p>
+            <div class="finalActions"><button id="exportYdkeBtn" class="primary secondary">YDKE exportieren</button><span id="ydkeNotice" class="hint"></span></div><div class="finalSection"><h3>Main Deck</h3><div id="finalDeck" class="finalDeck"></div><h3 class="extraHeading">Extra Deck</h3><div id="finalExtraDeck" class="finalDeck extraFinalDeck"></div></div>
+          </div>
+        </div>
+        <aside class="side">
+          <div class="chartCard">
+            <h3>Mein Deck</h3>
+            <div class="donut" id="donut"><span id="donutTotal">0</span></div>
+            <div class="legend">
+              <span><i class="monster"></i>Monster <b id="mCount">0</b></span>
+              <span><i class="spell"></i>Zauber <b id="sCount">0</b></span>
+              <span><i class="trap"></i>Fallen <b id="tCount">0</b></span>
+            </div>
+          </div>
+          <div class="deckPanel"><h4>Main Deck</h4><div class="deck" id="deck"></div><h4 class="extraHeading">Extra Deck</h4><div class="deck extraDeck" id="extraDeck"></div></div>
+          <button id="startBtn" class="primary hidden">Draft starten</button>
+        </aside>
+      </section>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
