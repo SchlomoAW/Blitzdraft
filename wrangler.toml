@@ -1,0 +1,25 @@
+name = "blitzdraft"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[durable_objects]
+bindings = [
+  { name = "DRAFT_ROOMS", class_name = "DraftRoomV2" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["DraftRoom"]
+
+# v0.11.2: loescht die alte Klasse samt ALLEN alten Rooms und legt eine neue, leere an.
+[[migrations]]
+tag = "v2"
+deleted_classes = ["DraftRoom"]
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["DraftRoomV2"]
